@@ -24,10 +24,11 @@ class DropBoxController {
     [...files].forEach((file) => {
       promises.push(
         new Promise((resolve, reject) => {
+          let formData = new FormData();
+          formData.append("input-file", file);
+
           // let ajax = new XMLHttpRequest();
-
           // ajax.open("POST", "/upload");
-
           // ajax.onload = (event) => {
           //   try {
           //     resolve(JSON.parse(ajax.responseText));
@@ -35,25 +36,18 @@ class DropBoxController {
           //     reject(e);
           //   }
           // };
-
           // ajax.onerror = (event) => {
           //   reject(event);
           // };
-          // criar o formdata!!!
           // ajax.send(formData);
-
-          let formData = new FormData();
-          formData.append("input-file", file);
 
           // fetch("/upload", {
           //   method: "POST",
-          //   headers: new Headers({
-          //     "Content-Type": "application/json",
-          //     "Content-Type": "application/x-www-form-urlencoded",
-          //   }),
-          //   body: JSON.stringify(formData),
+          //   body: formData,
           // })
-          //   .then((res) => console.log(res))
+          //   .then((res) => {
+          //     res.json().then((data) => resolve(data));
+          //   })
           //   .catch((e) => reject(e));
 
           this.postFormData("/upload", formData)
@@ -70,13 +64,8 @@ class DropBoxController {
   async postFormData(url = "", data) {
     const response = await fetch(url, {
       method: "POST",
-      headers: new Headers({
-        "Content-Type": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      }),
       body: data,
     });
-    console.log(response);
     return response.json();
   }
 }
