@@ -20,14 +20,14 @@ class DropBoxController {
     });
 
     this.inputFilesEl.addEventListener("change", (event) => {
+      // desativa botão upload de arquivos
+      this.btnSendFileEl.disabled = true;
       // envia files para upload
       this.uploadTask(event.target.files).then((responses) =>
         responses.forEach((resp) => this.saveTask(resp["input-file"]))
       );
       // abre modal
       this.modalShow();
-      // zera o campo files
-      this.inputFilesEl.value = "";
     });
   }
 
@@ -36,6 +36,7 @@ class DropBoxController {
     this.snackModalEl.style.display = show ? "block" : "none";
   }
 
+  /** salva os dados do arquivo no database */
   saveTask(file) {
     fetch("/save", {
       method: "POST",
@@ -45,13 +46,15 @@ class DropBoxController {
       body: JSON.stringify(file),
     })
       .then((resp) => {
-        resp
-          .json()
-          .then((data) => (this.ulFilesEl.innerHTML += this.getFileView(data)));
+        resp.json().then((data) => {
+          this.ulFilesEl.innerHTML += this.getFileView(data);
+          this.uploadComplete();
+        });
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.error(e));
   }
 
+  /** busca os dados saldos no database */
   listTask() {
     fetch("/list")
       .then((resp) => {
@@ -61,9 +64,18 @@ class DropBoxController {
           );
         });
       })
-      .catch((e) => console.log(e));
+      .catch((e) => console.error(e));
   }
 
+  uploadComplete() {
+    // zera o campo files
+    this.modalShow(false);
+    this.inputFilesEl.value = "";
+    // ativa botão upload de arquivos
+    this.btnSendFileEl.disabled = false;
+  }
+
+  /** faz upload dos arquivos para o servidor */
   uploadTask(files) {
     let promises = [];
 
@@ -79,18 +91,17 @@ class DropBoxController {
           ajax.open("POST", "/upload");
 
           ajax.onload = (event) => {
-            // fecha modal
-            this.modalShow(false);
             try {
               resolve(JSON.parse(ajax.responseText));
             } catch (e) {
+              this.uploadComplete();
               reject(e);
             }
           };
           // trataiva de erros
           ajax.onerror = (event) => {
             // fecha modal
-            this.modalShow(false);
+            this.uploadComplete();
             reject(event);
           };
           // status upload arquivos
@@ -101,34 +112,11 @@ class DropBoxController {
           this.startUploadTime = Date.now();
           // envia os dados
           ajax.send(formData);
-
-          // fetch("/upload", {
-          //   method: "POST",
-          //   body: formData,
-          // })
-          //   .then((res) => {
-          //     console.log(res);
-          //     res.json().then((data) => resolve(data));
-          //   })
-          //   .catch((e) => reject(e));
-
-          // this.postFormData("/upload", formData)
-          //   .then((data) => resolve(data))
-          //   .catch((e) => reject(e));
         })
       );
     });
 
     return Promise.all(promises);
-  }
-
-  /** função post com multiplos arquivos */
-  async postFormData(url = "", data) {
-    const response = await fetch(url, {
-      method: "POST",
-      body: data,
-    });
-    return response.json();
   }
 
   /** tratativa para upload de arquivos */
@@ -332,7 +320,6 @@ class DropBoxController {
 
   /** formata o el li para exibição do arquivo */
   getFileView(file) {
-    console.log(file);
     return `
       <li>
       ${this.getFileIconView(file)}
