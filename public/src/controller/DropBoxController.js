@@ -11,6 +11,7 @@ class DropBoxController {
     this.ulFilesEl = document.querySelector("#list-of-files-and-directories");
 
     this.initEvents();
+    this.listTask();
   }
 
   initEvents() {
@@ -20,7 +21,9 @@ class DropBoxController {
 
     this.inputFilesEl.addEventListener("change", (event) => {
       // envia files para upload
-      this.uploadTask(event.target.files);
+      this.uploadTask(event.target.files).then((responses) =>
+        responses.forEach((resp) => this.saveTask(resp["input-file"]))
+      );
       // abre modal
       this.modalShow();
       // zera o campo files
@@ -33,12 +36,38 @@ class DropBoxController {
     this.snackModalEl.style.display = show ? "block" : "none";
   }
 
+  saveTask(file) {
+    fetch("/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(file),
+    })
+      .then((resp) => {
+        resp
+          .json()
+          .then((data) => (this.ulFilesEl.innerHTML += this.getFileView(data)));
+      })
+      .catch((e) => console.log(e));
+  }
+
+  listTask() {
+    fetch("/list")
+      .then((resp) => {
+        resp.json().then((data) => {
+          data.forEach(
+            (file) => (this.ulFilesEl.innerHTML += this.getFileView(file))
+          );
+        });
+      })
+      .catch((e) => console.log(e));
+  }
+
   uploadTask(files) {
     let promises = [];
 
     [...files].forEach((file) => {
-      console.log(file);
-
       promises.push(
         new Promise((resolve, reject) => {
           // formData
@@ -53,8 +82,6 @@ class DropBoxController {
             // fecha modal
             this.modalShow(false);
             try {
-              this.ulFilesEl.innerHTML += this.getFileView(file);
-
               resolve(JSON.parse(ajax.responseText));
             } catch (e) {
               reject(e);
@@ -282,7 +309,7 @@ class DropBoxController {
         </g>
       </svg>`;
 
-    switch (file.type) {
+    switch (file.mimetype) {
       case "folder":
         return folderIcon;
       case "image/jpg":
@@ -305,10 +332,11 @@ class DropBoxController {
 
   /** formata o el li para exibição do arquivo */
   getFileView(file) {
+    console.log(file);
     return `
       <li>
       ${this.getFileIconView(file)}
-      <div class="name text-center">${file.name}</div>
+      <div class="name text-center">${file.originalFilename}</div>
       </li>`;
   }
 }
