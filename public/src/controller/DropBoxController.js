@@ -10,11 +10,18 @@ class DropBoxController {
 
     this.ulFilesEl = document.querySelector("#list-of-files-and-directories");
 
+    this.onselectionchange = new Event('onselectionchange');
+
     this.initEvents();
     this.listTask();
   }
 
   initEvents() {
+    this.ulFilesEl.addEventListener('onselectionchange', e => {
+      console.log(e)
+    });
+
+
     this.btnSendFileEl.addEventListener("click", (event) => {
       this.inputFilesEl.click();
     });
@@ -329,6 +336,8 @@ class DropBoxController {
       const parent_element = li.parentElement;
       // lista de todos os "li's" dentro do elemento pai selecionado
       const list_elements = parent_element.childNodes;
+      // dispara o evento personalizado ao mudar a lista
+      parent_element.dispatchEvent(this.onselectionchange)
 
       /**
        * verifica se o shift esta pressionado
@@ -379,7 +388,7 @@ class DropBoxController {
       if(!e.ctrlKey) {
         list_elements.forEach(li => li.classList.remove(htmlClass))
       }
-      
+
       // altera classe do li selecionado
       li.classList.toggle(htmlClass);
     });
