@@ -10,15 +10,36 @@ class DropBoxController {
 
     this.ulFilesEl = document.querySelector("#list-of-files-and-directories");
 
+    this.btnNewFolder = document.querySelector("#btn-new-folder");
+    this.btnRename = document.querySelector("#btn-rename");
+    this.btnDelete = document.querySelector("#btn-delete");
+
     this.onselectionchange = new Event('onselectionchange');
 
     this.initEvents();
     this.listTask();
   }
 
+  getSelection(){
+    return this.ulFilesEl.querySelectorAll('.selected');
+  }
+
   initEvents() {
     this.ulFilesEl.addEventListener('onselectionchange', e => {
-      console.log(e)
+      switch(this.getSelection().length) {
+        case 0:
+          this.btnRename.style.display = 'none'
+          this.btnDelete.style.display = 'none'
+          break;
+        case 1:
+          this.btnRename.style.display = 'block'
+          this.btnDelete.style.display = 'block'
+          break;
+        default:
+          this.btnRename.style.display = 'none'
+          this.btnDelete.style.display = 'block'
+          break;
+      }
     });
 
 
@@ -336,8 +357,6 @@ class DropBoxController {
       const parent_element = li.parentElement;
       // lista de todos os "li's" dentro do elemento pai selecionado
       const list_elements = parent_element.childNodes;
-      // dispara o evento personalizado ao mudar a lista
-      parent_element.dispatchEvent(this.onselectionchange)
 
       /**
        * verifica se o shift esta pressionado
@@ -374,6 +393,9 @@ class DropBoxController {
               }
             })
             // retorna para evitar um toggle no ultimo item selecionado
+            
+            // dispara o evento personalizado ao mudar a lista
+            parent_element.dispatchEvent(this.onselectionchange)
             return true;
           }
         }
@@ -385,12 +407,16 @@ class DropBoxController {
        * então remove a seleção das outras classes
        * deixando somente a última selecionada
        */
-      if(!e.ctrlKey) {
+       if(!e.ctrlKey) {
         list_elements.forEach(li => li.classList.remove(htmlClass))
       }
 
       // altera classe do li selecionado
       li.classList.toggle(htmlClass);
+      
+      // dispara o evento personalizado ao mudar a lista
+      parent_element.dispatchEvent(this.onselectionchange)
+
     });
   }
 

@@ -1,3 +1,7 @@
+#btn-rename, #btn-delete {
+    display: none;
+}
+
 #list-of-files-and-directories li {
     text-align: center;
     width: 240px;
