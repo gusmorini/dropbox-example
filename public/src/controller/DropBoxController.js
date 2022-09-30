@@ -25,6 +25,15 @@ class DropBoxController {
   }
 
   initEvents() {
+
+    /** ação botão renomear */
+    this.btnRename.addEventListener('click', e => {
+      const select = this.getSelection()[0];
+      console.log(select);
+    });
+
+
+    /** mostra ou oculta botões de ação */
     this.ulFilesEl.addEventListener('onselectionchange', e => {
       switch(this.getSelection().length) {
         case 0:
@@ -42,7 +51,7 @@ class DropBoxController {
       }
     });
 
-
+    // click botão enviar arquivos
     this.btnSendFileEl.addEventListener("click", (event) => {
       this.inputFilesEl.click();
     });
