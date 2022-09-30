@@ -311,16 +311,83 @@ class DropBoxController {
 
   /** formata o el li para exibição do arquivo */
   getFileView(file) {
-    return `
-      <li data-key=${file._id}>
-      ${this.getFileIconView(file)}
-      <div class="name text-center">${file.originalFilename}</div>
-      </li>`;
+    let li = document.createElement('li');
+    li.dataset.key = file._id;
+    li.innerHTML = `
+      ${this.getFileIconView(file)} 
+      <div class="name text-center">${file.originalFilename}</div>`;
+    this.initEventsLi(li);
+    return li;
+  }
+
+  // inicia eventos no li informado
+  initEventsLi(li) {
+    li.addEventListener('click', e => {
+      // nome da classe html a ser alterada
+      const htmlClass = 'selected'
+      // elemento "pai" ao li selecionado no caso "ul"
+      const parent_element = li.parentElement;
+      // lista de todos os "li's" dentro do elemento pai selecionado
+      const list_elements = parent_element.childNodes;
+
+      /**
+       * verifica se o shift esta pressionado
+       * então os itens no intervalo entre
+       * os 2 itens selecionados serão selecionados
+       */
+      if (e.shiftKey) {
+        // primeiro elemento selecionado
+        let el_start = parent_element.querySelector('.' + htmlClass)
+        // se já existir um elemento selecionado                    
+        if (el_start) {
+          // index a serem preenchidos inicial e final selecionados
+          let index_start = null
+          let index_end = null
+          // percorre a lista de "li's"
+          list_elements.forEach((el, index) => {
+            // se o elemento for igual o primeiro elemento recupera o index
+            if (el === el_start) index_start = index
+            // se o elemento for igual ao último elemento selecionado recupera o index
+            if (el === li) index_end = index
+          });
+          // se os 2 index forem preenchidos
+          if (index_start != null && index_end != null) {
+            // ordena os index independente da ordem selecionada
+            const index_interval = [index_start, index_end].sort();
+            /**
+             * percorre a lista novamente se o index estiver
+             * dentro do intervalo de index inicial e final
+             * a classe é adicionada
+             */
+            list_elements.forEach((el, index) => {
+              if (index >= index_interval[0] && index <= index_interval[1]) {
+                el.classList.add(htmlClass);
+              }
+            })
+            // retorna para evitar um toggle no ultimo item selecionado
+            return true;
+          }
+        }
+
+      }
+
+      /**
+       * verifica se a tecla ctrl não está pressionada
+       * então remove a seleção das outras classes
+       * deixando somente a última selecionada
+       */
+      if(!e.ctrlKey) {
+        list_elements.forEach(li => li.classList.remove(htmlClass))
+      }
+      
+      // altera classe do li selecionado
+      li.classList.toggle(htmlClass);
+    });
   }
 
   // recebe apenas um item para ser inserido na lista
   addItemList(item) {
-    this.ulFilesEl.innerHTML += this.getFileView(item)
+    this.ulFilesEl.append(this.getFileView(item))
   }
 
   /** recebe um array e insere os itens na lista UL */
