@@ -23,9 +23,10 @@ class DropBoxController {
       // desativa botão upload de arquivos
       this.btnSendFileEl.disabled = true;
       // envia files para upload
-      this.uploadTask(event.target.files).then((responses) =>
-        responses.forEach((resp) => this.saveTask(resp["input-file"]))
-      );
+      this.uploadTask(event.target.files)
+        .then((responses) =>
+          responses.forEach((resp) => this.saveTask(resp["input-file"])))
+          .catch(e => console.error(e));
       // abre modal
       this.modalShow();
     });
@@ -47,7 +48,7 @@ class DropBoxController {
     })
       .then((resp) => {
         resp.json().then((data) => {
-          this.ulFilesEl.innerHTML += this.getFileView(data);
+          this.addItemList(data);
           this.uploadComplete();
         });
       })
@@ -58,11 +59,7 @@ class DropBoxController {
   listTask() {
     fetch("/list")
       .then((resp) => {
-        resp.json().then((data) => {
-          data.forEach(
-            (file) => (this.ulFilesEl.innerHTML += this.getFileView(file))
-          );
-        });
+        resp.json().then((data) => this.addItemsList(data));
       })
       .catch((e) => console.error(e));
   }
@@ -160,8 +157,7 @@ class DropBoxController {
 
   /** retorna o ícone correspondente ao arquivo */
   getFileIconView(file) {
-    const defaultIcon = `
-    <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+    const defaultIcon = `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
       <title>1357054_617b.jpg</title>
       <defs>
         <rect id="mc-content-unknown-large-b" x="43" y="30" width="74" height="100" rx="4"></rect>
@@ -178,8 +174,7 @@ class DropBoxController {
       </g>
     </svg>`;
 
-    const folderIcon = `
-    <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+    const folderIcon = `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
         <title>content-folder-large</title>
         <g fill="none" fill-rule="evenodd">
           <path d="M77.955 53h50.04A3.002 3.002 0 0 1 131 56.007v58.988a4.008 4.008 0 0 1-4.003 4.005H39.003A4.002 4.002 0 0 1 35 114.995V45.99c0-2.206 1.79-3.99 3.997-3.99h26.002c1.666 0 3.667 1.166 4.49 2.605l3.341 5.848s1.281 2.544 5.12 2.544l.005.003z" fill="#71B9F4"></path>
@@ -187,8 +182,7 @@ class DropBoxController {
         </g>
       </svg>`;
 
-    const imageIcon = `
-    <svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
+    const imageIcon = `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
       <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
         <feOffset result="shadowOffsetOuter1" in="SourceAlpha" dy="1"></feOffset>
         <feColorMatrix values="0 0 0 0 0.858823529 0 0 0 0 0.870588235 0 0 0 0 0.88627451 0 0 0 1 0" in="shadowOffsetOuter1"></feColorMatrix>
@@ -226,8 +220,7 @@ class DropBoxController {
       </g>
     </svg>`;
 
-    const pdfIcon = `
-    <svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
+    const pdfIcon = `<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="160px" height="160px" viewBox="0 0 160 160" enable-background="new 0 0 160 160" xml:space="preserve">
       <filter height="102%" width="101.4%" id="mc-content-unknown-large-a" filterUnits="objectBoundingBox" y="-.5%" x="-.7%">
         <feOffset result="shadowOffsetOuter1" in="SourceAlpha" dy="1"></feOffset>
         <feColorMatrix values="0 0 0 0 0.858823529 0 0 0 0 0.870588235 0 0 0 0 0.88627451 0 0 0 1 0" in="shadowOffsetOuter1"></feColorMatrix>
@@ -259,8 +252,7 @@ class DropBoxController {
                                 c-0.131-1.296,1.072-0.867,1.753-0.876c0.796-0.011,1.668,0.118,1.588,1.293C97.394,93.857,97.226,94.871,96.229,94.8z"></path>
     </svg>`;
 
-    const musicIcon = `
-    <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+    const musicIcon = `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
       <title>content-audio-large</title>
       <defs>
         <rect id="mc-content-audio-large-b" x="30" y="43" width="100" height="74" rx="4"></rect>
@@ -278,8 +270,7 @@ class DropBoxController {
       </g>
     </svg>`;
 
-    const videoIcon = `
-    <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+    const videoIcon = `<svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
         <title>content-video-large</title>
         <defs>
           <rect id="mc-content-video-large-b" x="30" y="43" width="100" height="74" rx="4"></rect>
@@ -321,9 +312,21 @@ class DropBoxController {
   /** formata o el li para exibição do arquivo */
   getFileView(file) {
     return `
-      <li>
+      <li data-key=${file._id}>
       ${this.getFileIconView(file)}
       <div class="name text-center">${file.originalFilename}</div>
       </li>`;
   }
+
+  // recebe apenas um item para ser inserido na lista
+  addItemList(item) {
+    this.ulFilesEl.innerHTML += this.getFileView(item)
+  }
+
+  /** recebe um array e insere os itens na lista UL */
+  addItemsList(items) {
+    items.forEach(item => this.addItemList(item));
+  }
+
+
 }
