@@ -3,6 +3,16 @@ var router = express.Router();
 var formidable = require("formidable");
 var db = require("../database/nedb");
 
+const fs = require('fs');
+const dir = (__dirname + '/../upload');
+
+/** create directory upload if not exists */
+const verifyDirectoryUpload = () => {
+ if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
+}
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -10,6 +20,9 @@ router.get("/", function (req, res, next) {
 
 /** POST upload files page */
 router.post("/upload", (req, res, next) => {
+  
+  verifyDirectoryUpload();
+  
   const form = formidable({
     uploadDir: "./upload",
     keepExtensions: true,
