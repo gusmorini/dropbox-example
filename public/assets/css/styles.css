@@ -1,0 +1,10 @@
+#list-of-files-and-directories li {
+    text-align: center;
+    width: 240px;
+    margin: 2px;
+}
+
+#list-of-files-and-directories li .name {
+    word-break: break-word;
+    margin: 0 auto;
+}
