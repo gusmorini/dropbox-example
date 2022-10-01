@@ -56,6 +56,22 @@ class DropBoxController {
    }
 
   initEvents() {
+
+    this.btnNewFolder.addEventListener('click', e => {
+
+      let name = prompt('nome da pasta', '')
+
+      if (name) {
+        this.saveTask({
+          name,
+          type: 'folder',
+          size: 0
+        })
+      }
+
+    });
+
+
     /** ação botão excluir */
     this.btnDelete.addEventListener('click', e => {
       // busca todos os itens selecionados e faz um forEach
@@ -135,24 +151,11 @@ class DropBoxController {
       // envia files para upload
       this.uploadTask(event.target.files)
         .then((responses) =>
-          responses.forEach((resp) => this.saveTask(this.formatObjectFile(resp["input-file"]))))
+          responses.forEach((resp) => this.saveTask(resp)))
           .catch(e => console.error(e));
       // abre modal
       this.modalShow();
     });
-  }
-
-  /** 
-   * pega os dados retornados ao salvar o arquivo em disco
-   * e formata o objeto para ser salvo no database   * 
-  */
-  formatObjectFile({originalFilename, size, newFilename}) {
-    return {
-      name: originalFilename,
-      path: newFilename,
-      type: originalFilename.split('.')[1],
-      size,
-    }
   }
 
   /** toggle modal */

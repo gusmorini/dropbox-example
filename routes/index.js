@@ -36,7 +36,15 @@ router.post("/upload", (req, res, next) => {
     if (err) {
       return res.status(400).json({ error: err });
     }
-    res.status(200).json(files);
+    const { originalFilename, size, newFilename } = files['input-file']
+    // retorno no formato do objeto do projeto
+    const file = { 
+      name: originalFilename,
+      path: newFilename,
+      type: originalFilename.split('.')[1],
+      size,
+    }
+    res.status(200).json(file);
   });
 });
 
