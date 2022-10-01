@@ -35,11 +35,38 @@ class DropBoxController {
       }),
       body: JSON.stringify(file)
     })
-      .then(res => res.json().then(data => console.log(data)))
+      // .then(res => res.json().then(data => console.log(data)))
       .catch(e => console.error(e))
   }
 
+  /**
+   * remove file database from id
+   */
+   removeTask(file) {
+    const { _id, newFilename } = file
+    fetch(`/delete/${_id}`, { 
+      method: "DELETE", 
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ newFilename })
+     })
+      // .then(res => res.json().then(data => console.log(data)))
+      .catch(e => console.error(e))
+   }
+
   initEvents() {
+    /** ação botão excluir */
+    this.btnDelete.addEventListener('click', e => {
+      // busca todos os itens selecionados e faz um forEach
+      this.getSelection().forEach(li => {
+        const file = JSON.parse(li.dataset.file)
+        // remove o item do DOM
+        li.remove();
+        // remove o file do database
+        this.removeTask(file)
+      })
+    })
 
     /** ação botão renomear */
     this.btnRename.addEventListener('click', e => {
