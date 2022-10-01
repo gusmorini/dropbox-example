@@ -4,14 +4,14 @@
 
 #list-of-files-and-directories li {
     text-align: center;
-    width: 240px;
+    min-width: 200px;
     margin: 2px;
+    padding-bottom: 1rem;
 }
 
 #list-of-files-and-directories li .name {
     word-break: break-word;
     margin: 0 auto;
-    margin-bottom: 10px;
 }
 
 div #rename-item {
@@ -22,8 +22,7 @@ div #rename-item {
     text-align: center;
     color: #343a40;
     resize: none;
-    margin:0;
-    padding: 0;
+    overflow: hidden;
 }
 
 #list-of-files-and-directories li .bi {

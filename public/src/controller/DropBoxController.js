@@ -1,5 +1,8 @@
 class DropBoxController {
   constructor() {
+
+    this.breadCrumb = ['home'];
+
     this.btnSendFileEl = document.querySelector("#btn-send-file");
     this.inputFilesEl = document.querySelector("#files");
     this.snackModalEl = document.querySelector("#react-snackbar-root");
@@ -16,8 +19,11 @@ class DropBoxController {
 
     this.onselectionchange = new Event('onselectionchange');
 
+    this.navEl = document.querySelector('#browse-location');
+
     this.initEvents();
-    this.listTask();
+    this.openFolder()
+
   }
 
   getSelection(){
@@ -56,11 +62,9 @@ class DropBoxController {
    }
 
   initEvents() {
-
+    /** evento nova pasta */
     this.btnNewFolder.addEventListener('click', e => {
-
       let name = prompt('nome da pasta', '')
-
       if (name) {
         this.saveTask({
           name,
@@ -68,7 +72,6 @@ class DropBoxController {
           size: 0
         })
       }
-
     });
 
 
@@ -163,6 +166,15 @@ class DropBoxController {
     this.snackModalEl.style.display = show ? "block" : "none";
   }
 
+  // retorna a pagina atual do breadCrumb
+  getCurrentPage() {
+
+    let index = this.breadCrumb.length - 1
+    let name = this.breadCrumb[index]
+
+    return { name, index }
+  }
+
   /** salva os dados do arquivo no database */
   saveTask(file) {
     fetch("/save", {
@@ -170,7 +182,10 @@ class DropBoxController {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(file),
+      body: JSON.stringify({
+        ...file,
+        group: this.getCurrentPage().name
+      }),
     })
       .then((resp) => {
         resp.json().then((data) => {
@@ -181,9 +196,14 @@ class DropBoxController {
       .catch((e) => console.error(e));
   }
 
+  clearList(){
+    this.ulFilesEl.innerHTML="";
+  }
+
   /** busca os dados saldos no database */
-  listTask() {
-    fetch("/list")
+  listTask(group = this.getCurrentPage().name) {
+    this.clearList()
+    fetch(`/list/${group}`)
       .then((resp) => {
         resp.json().then((data) => this.addItemsList(data));
       })
@@ -334,8 +354,73 @@ class DropBoxController {
     return li;
   }
 
+  /** renderiza o elemento de brandcrumb */
+  renderNav(){
+    // nav temporario
+    let nav = document.createElement('nav')
+    // contador elementos do breadcrumb
+    let count = this.breadCrumb.length
+    // percorre elementos
+    this.breadCrumb.forEach((value, key) => {
+      if (key + 1 == count ) {
+        nav.innerHTML += `<span>${value}</span>`
+      } else {
+        nav.innerHTML += `<span class="breadcrumb-segment__wrapper">
+          <span class="ue-effect-container uee-BreadCrumbSegment-link-0">
+            <a href="#" data-id="${key}" class="breadcrumb-segment">${value}</a>
+          </span>
+          <svg width="24" height="24" viewBox="0 0 24 24" class="mc-icon-template-stateless" style="top: 4px; position: relative">
+            <title>arrow-right</title>
+            <path d="M10.414 7.05l4.95 4.95-4.95 4.95L9 15.534 12.536 12 9 8.464z" fill="#637282" fill-rule="evenodd"></path>
+          </svg>
+        </span>`
+      }
+    })
+    // atualiza o elemento no DOM
+    this.navEl.innerHTML = nav.innerHTML
+    // adiciona eventos de clique se necessário
+    this.navEl.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', e => this.navigatePages(a.dataset.id))
+    })
+  } 
+  
+  // altera o breadcrump e atualiza a pagina
+  navigatePages(index) {
+    this.breadCrumb.splice(Number(index)+1)
+    this.openFolder()
+  }
+
+  // gerencia o breadcrumb e lista os arquivos
+  openFolder(folder = null){
+    if (folder) {
+      this.breadCrumb.push(folder)
+    }
+    this.renderNav()
+    this.listTask();
+  }
+
   // inicia eventos no li informado
   initEventsLi(li) {
+    // evento de duplo click
+    li.addEventListener('dblclick', e => {
+      
+      let file = JSON.parse(li.dataset.file)
+
+      switch(file.type) {
+        case 'folder':
+          
+          this.openFolder(file.name)
+
+          break
+        default:
+          console.log('arquivo')
+          // window.open('file?path=' + file.path);
+      }
+
+    })
+
+
+    // evento de click
     li.addEventListener('click', e => {
       // nome da classe html a ser alterada
       const htmlClass = 'selected'

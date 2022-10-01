@@ -25,6 +25,19 @@ router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
 
+/** GET test db */
+router.get('/api', (req, res) => {
+  db.find({ group: '' })
+    .sort({ createdAt: 1 })
+    .exec((err, files) => {
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json(files);
+      }
+    });
+})
+
 /** POST upload files page */
 router.post("/upload", (req, res, next) => {
   verifyDirectoryUpload();
@@ -49,8 +62,9 @@ router.post("/upload", (req, res, next) => {
 });
 
 /** GET list files db */
-router.get("/list", (req, res) => {
-  db.find({})
+router.get("/list/:group", (req, res) => {
+  const { group } = req.params
+  db.find({ group: group })
     .sort({ createdAt: 1 })
     .exec((err, files) => {
       if (err) {
