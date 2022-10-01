@@ -43,13 +43,13 @@ class DropBoxController {
    * remove file database from id
    */
    removeTask(file) {
-    const { _id, newFilename } = file
+    const { _id, path } = file
     fetch(`/delete/${_id}`, { 
       method: "DELETE", 
       headers: new Headers({
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify({ newFilename })
+      body: JSON.stringify({ path })
      })
       // .then(res => res.json().then(data => console.log(data)))
       .catch(e => console.error(e))
@@ -75,7 +75,7 @@ class DropBoxController {
       // faz um parse do dateset file
       let file = JSON.parse(select.dataset.file)
       // separa o nome da extensão
-      let [name, ext] = file.originalFilename.split('.')
+      let [name, ext] = file.name.split('.')
       // seleciona o div do texto
       let div = select.querySelector('.name')
       // insere um texarea no lugar do texto
@@ -95,7 +95,7 @@ class DropBoxController {
         // verifica se os dados foram alterados
         if (value != name) {
           // atualiza o objeto file
-          file.originalFilename = filename
+          file.name = filename
           // atualiza o dataset.file
           select.dataset.file = JSON.stringify(file)
           // envia os novos dados para o database
@@ -148,7 +148,15 @@ class DropBoxController {
   }
 
   /** salva os dados do arquivo no database */
-  saveTask(file) {
+  saveTask(data) {
+    const { originalFilename, size, newFilename } = data;
+    /** formata como o objeto vai ser salvo no database */
+    const file = {
+      name: originalFilename,
+      path: newFilename,
+      type: originalFilename.split('.')[1],
+      size,
+    }
     fetch("/save", {
       method: "POST",
       headers: {
@@ -268,10 +276,7 @@ class DropBoxController {
   /** retorna o ícone correspondente ao arquivo */
   getFileIconView(file) {
 
-    let [name, ext] = file.newFilename.split('.')
-    const key = ext ? ext : file.mimetype
-
-    switch (key) {
+    switch (file.type) {
       case "folder":
         return `<i class="bi bi-folder"></i>`;
       
@@ -316,7 +321,7 @@ class DropBoxController {
     li.dataset.file = JSON.stringify(file);
     li.innerHTML = `
       ${this.getFileIconView(file)} 
-      <div class="name text-center">${file.originalFilename}</div>`;
+      <div class="name text-center">${file.name}</div>`;
     this.initEventsLi(li);
     return li;
   }

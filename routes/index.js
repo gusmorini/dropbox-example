@@ -43,7 +43,7 @@ router.post("/upload", (req, res, next) => {
 /** GET list files db */
 router.get("/list", (req, res) => {
   db.find({})
-    .sort({ mtime: 1 })
+    .sort({ createdAt: 1 })
     .exec((err, files) => {
       if (err) {
         res.status(400).json({ error: err });
@@ -67,7 +67,6 @@ router.post("/save", (req, res, next) => {
 /** PUT update file nam */
 router.put('/update/:id', (req, res) => {
   const { id } = req.params
-  const { originalFilename } = req.body
   if (!req.body || !id) return res.status(400).json({ error: 'invalid params' })
   db.update({ _id: id }, req.body , err => {
     if (err) return res.status(400).json({ error: err })
@@ -79,12 +78,12 @@ router.put('/update/:id', (req, res) => {
 router.delete('/delete/:id', (req, res) => {
   try {
     const { id } = req.params
-    const { newFilename } = req.body
+    const { path } = req.body
     db.remove({ _id: id }, {}, err => {
       if (err) throw new Error(err) 
     })
-    deleteFileDirectoryUpload(newFilename)
-    res.status(200).json({ id, newFilename })
+    deleteFileDirectoryUpload(path)
+    res.status(200).json({ id, path })
   } catch (e) {
     res.status(400).json({ error: e })
   }
