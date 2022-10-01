@@ -4,7 +4,7 @@ var formidable = require("formidable");
 var db = require("../database/nedb");
 
 const fs = require('fs');
-const dir = (__dirname + '/../upload');
+const dir = './upload';
 
 /** create directory upload if not exists */
 const verifyDirectoryUpload = () => {
@@ -14,8 +14,10 @@ const verifyDirectoryUpload = () => {
 }
 /** delete item directory upload */
 const deleteFileDirectoryUpload = filename => {
-  let path = dir + '/' + filename;
-  fs.unlinkSync(path)
+  const test = dir + '/' + filename 
+  if (fs.existsSync(test)) {
+    fs.unlinkSync(test)
+  }
 }
 
 /* GET home page. */
@@ -27,7 +29,7 @@ router.get("/", function (req, res, next) {
 router.post("/upload", (req, res, next) => {
   verifyDirectoryUpload();
   const form = formidable({
-    uploadDir: "./upload",
+    uploadDir: dir,
     keepExtensions: true,
   });
   form.parse(req, (err, fields, files) => {

@@ -28,11 +28,11 @@ div #rename-item {
 
 #list-of-files-and-directories li .bi {
     font-size: 4rem;
-    /* opacity: 0.6; */
-    color: #ccc;
+    opacity: 0.6;
+    color: #999;
 }
 
-#list-of-files-and-directories li .file-ppt {
+/* #list-of-files-and-directories li .file-ppt {
     color: #d4512c;
 }
 
@@ -58,6 +58,6 @@ div #rename-item {
 
 #list-of-files-and-directories li .file-image {
     color: rgb(43 175 62);
-}
+} */
 
 
