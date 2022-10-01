@@ -86,7 +86,8 @@ class DropBoxController {
       inputName.select();
       // evento ao perder o foco
       inputName.addEventListener('blur', e => {
-        const { value } = e.target;
+        // verifica se o value está vazio e usa o valor antigo
+        const value = e.target.value || name;
         // verifica se o arquivo tem extensão e monta o filename
         let filename = ext ? `${value}.${ext}` : value
         // atualiza o texto do div
