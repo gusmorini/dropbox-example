@@ -11,17 +11,24 @@
 
     <title>DropBox Clone</title>
 
-    <link
+    <!-- <link
       href="bower_components/Ionicons/css/ionicons.min.css"
       rel="stylesheet"
-    />
+    /> -->
+    
     <link
-      href="bower_components/bootstrap/dist/css/bootstrap.min.css"
-      rel="stylesheet"
+    href="bower_components/bootstrap/dist/css/bootstrap.min.css"
+    rel="stylesheet"
     />
+    
     <link href="assets/css/dropbox-clone.css" rel="stylesheet" />
+    <!-- font awesome cdn -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <!-- bootstrap icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.9.1/font/bootstrap-icons.min.css" integrity="sha512-5PV92qsds/16vyYIJo3T/As4m2d8b6oWYfoqV+vtizRB6KhF1F9kYzWzQmsO6T3z3QG2Xdhrx7FQ+5R1LiQdUA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- personal css -->
     <link href="assets/css/styles.css" rel="stylesheet" />
-    <style></style>
+
   </head>
 
   <body>
@@ -295,12 +302,7 @@
                         class="search-bar__button"
                         type="submit"
                       >
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          class="mc-icon-template-selectable"
-                        >
+                          <i class="bi bi-search"></i>
                           <title>Artboard</title>
                           <defs>
                             <circle
@@ -378,21 +380,21 @@
                   type="button"
                   class="btn btn-link btn-block btn-sm btn-icon"
                 >
-                  <i class="ion-android-folder-open"></i>Nova Pasta
+                  <i class="bi bi-folder-plus"></i>Nova Pasta
                 </button>
                 <button
                   id="btn-rename"
                   type="button"
                   class="btn btn-link btn-block btn-sm btn-icon"
                 >
-                  <i class="ion-edit"></i>Renomear
+                  <i class="bi bi-pencil"></i>Renomear
                 </button>
                 <button
                   id="btn-delete"
                   type="button"
                   class="btn btn-link btn-block btn-sm btn-icon"
                 >
-                  <i class="ion-trash-a"></i>Excluir
+                  <i class="bi bi-trash3"></i>Excluir
                 </button>
               </div>
             </div>

@@ -25,3 +25,39 @@ div #rename-item {
     margin:0;
     padding: 0;
 }
+
+#list-of-files-and-directories li .bi {
+    font-size: 4rem;
+    /* opacity: 0.6; */
+    color: #ccc;
+}
+
+#list-of-files-and-directories li .file-ppt {
+    color: #d4512c;
+}
+
+#list-of-files-and-directories li .file-doc {
+    color: rgb(64 157 226);
+}
+
+#list-of-files-and-directories li .file-pdf {
+    color: #f21f15;
+}
+
+#list-of-files-and-directories li .file-zip {
+    color: #ea9700;
+}
+
+#list-of-files-and-directories li .file-music {
+    color: rgb(27 177 171);
+}
+
+#list-of-files-and-directories li .file-video {
+    color: #b169c3;
+}
+
+#list-of-files-and-directories li .file-image {
+    color: rgb(43 175 62);
+}
+
+
