@@ -135,11 +135,24 @@ class DropBoxController {
       // envia files para upload
       this.uploadTask(event.target.files)
         .then((responses) =>
-          responses.forEach((resp) => this.saveTask(resp["input-file"])))
+          responses.forEach((resp) => this.saveTask(this.formatObjectFile(resp["input-file"]))))
           .catch(e => console.error(e));
       // abre modal
       this.modalShow();
     });
+  }
+
+  /** 
+   * pega os dados retornados ao salvar o arquivo em disco
+   * e formata o objeto para ser salvo no database   * 
+  */
+  formatObjectFile({originalFilename, size, newFilename}) {
+    return {
+      name: originalFilename,
+      path: newFilename,
+      type: originalFilename.split('.')[1],
+      size,
+    }
   }
 
   /** toggle modal */
@@ -148,15 +161,7 @@ class DropBoxController {
   }
 
   /** salva os dados do arquivo no database */
-  saveTask(data) {
-    const { originalFilename, size, newFilename } = data;
-    /** formata como o objeto vai ser salvo no database */
-    const file = {
-      name: originalFilename,
-      path: newFilename,
-      type: originalFilename.split('.')[1],
-      size,
-    }
+  saveTask(file) {
     fetch("/save", {
       method: "POST",
       headers: {
