@@ -24,13 +24,54 @@ class DropBoxController {
     return this.ulFilesEl.querySelectorAll('.selected');
   }
 
+  /**
+   * update filename database
+   */
+  updateTask(file) {
+    fetch(`/update/${file._id}`, { 
+      method: "PUT", 
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(file)
+    })
+      .then(res => res.json().then(data => console.log(data)))
+      .catch(e => console.error(e))
+  }
+
   initEvents() {
 
     /** ação botão renomear */
     this.btnRename.addEventListener('click', e => {
-      const select = this.getSelection()[0];
-      console.log(select);
+      // pega o item selecionado
+      const select = this.getSelection()[0]
+      // faz um parse do dateset file
+      let file = JSON.parse(select.dataset.file)
+      // separa o nome da extensão
+      let [name, ext] = file.originalFilename.split('.')
+      // seleciona o div do texto
+      let div = select.querySelector('.name')
+      // insere um texarea no lugar do texto
+      div.innerHTML = `<textarea id='rename-item'>${name}</textarea>`
+      // seleciona o input textarea
+      let inputName = div.querySelector('#rename-item');
+      // seleciona o conteúdo do textarea
+      inputName.select();
+      // evento ao perder o foco
+      inputName.addEventListener('blur', e => {
+        // arquivo completo nome+extensão
+        let filename = `${e.target.value}.${ext}`
+        // atualiza o objeto file
+        file.originalFilename = filename
+        // atualiza o texto do div
+        div.innerHTML = filename
+        // atualiza o dataset.file
+        select.dataset.file = JSON.stringify(file)
+        // envia os novos dados para o database
+        this.updateTask(file);
+      });
     });
+    
 
 
     /** mostra ou oculta botões de ação */
@@ -350,6 +391,7 @@ class DropBoxController {
   getFileView(file) {
     let li = document.createElement('li');
     li.dataset.key = file._id;
+    li.dataset.file = JSON.stringify(file);
     li.innerHTML = `
       ${this.getFileIconView(file)} 
       <div class="name text-center">${file.originalFilename}</div>`;

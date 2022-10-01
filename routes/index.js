@@ -38,17 +38,6 @@ router.post("/upload", (req, res, next) => {
   });
 });
 
-/** POST save information files in db */
-router.post("/save", (req, res, next) => {
-  db.insert(req.body, (err, file) => {
-    if (err) {
-      res.status(400).json({ error: err });
-    } else {
-      res.status(200).json(file);
-    }
-  });
-});
-
 /** GET list files db */
 router.get("/list", (req, res) => {
   db.find({})
@@ -61,5 +50,34 @@ router.get("/list", (req, res) => {
       }
     });
 });
+
+/** POST save information files in db */
+router.post("/save", (req, res, next) => {
+  db.insert(req.body, (err, file) => {
+    if (err) {
+      res.status(400).json({ error: err });
+    } else {
+      res.status(200).json(file);
+    }
+  });
+});
+
+/** PUT update file nam */
+router.put('/update/:id', (req, res) => {
+  const { id } = req.params
+  const { originalFilename } = req.body
+
+  console.log(id, originalFilename)
+
+  if (!req.body || !id) return res.status(400).json({ error: 'invalid params' })
+
+  db.update({ _id: id }, req.body , err => {
+    if (err) return res.status(400).json({ error: err })
+    res.status(200).json(req.body);
+  })
+
+})
+
+
 
 module.exports = router;

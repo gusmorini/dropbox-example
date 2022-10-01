@@ -11,4 +11,17 @@
 #list-of-files-and-directories li .name {
     word-break: break-word;
     margin: 0 auto;
+    margin-bottom: 10px;
+}
+
+div #rename-item {
+    border:none;
+    background: #d6e8fa;
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    color: #343a40;
+    resize: none;
+    margin:0;
+    padding: 0;
 }
