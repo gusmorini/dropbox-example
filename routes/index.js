@@ -97,62 +97,37 @@ const findGroup = file => {
 
 }
 
-
-const deleteFolder = (file) => {
-    
-    function teste(values, acum = []) {
-
-      if (values.length <= 0) return acum;
-
-      values.forEach(item => {
-
-        // acum.push(item)
-        console.log(item)
-
-        db.remove({ _id: item._id }, {}, err => {
-          if (err) throw new Error(err) 
-          deleteFileDirectoryUpload(item.path)
-        })
-
-        if (item.type == 'folder') {
-          let group = [item.group, item.name].join('.')
-          db.find({ group: group })
-          .exec((err, files) => {
-            if (err) return
-            teste(files, acum)
-          })
-        }
-
-      }) 
-      
-      // return acum
-      
-    }
-
-
-    res = teste([file], [])   
-
-    // console.log('RES......: ' + res)
-    
-}
-
-
 /** DELETE remove file database and file disk server */
 router.delete('/delete/:id', (req, res) => {
   try {
     const { id } = req.params
     const file = req.body
 
-    if(file.type == 'folder') {
-      deleteFolder(file)
-      // .then(res => console.log(res))
-      // .catch(e => console.log(e))
+    function deleteItem({ _id, path }) {
+      db.remove({ _id: _id }, {}, err => {
+        if (err) throw new Error(err) 
+        deleteFileDirectoryUpload(path)
+      })
     }
 
-    // db.remove({ _id: id }, {}, err => {
-    //   if (err) throw new Error(err) 
-    // })
-    // deleteFileDirectoryUpload(path)
+    function recursiveFiles(values) {
+      if (values.length <= 0) return;
+      values.forEach(item => {
+        // console.log(item)
+        deleteItem(item)
+        if (item.type == 'folder') {
+          let group = [item.group, item.name].join('.')
+          db.find({ group: group })
+          .exec((err, files) => {
+            if (err) return
+            recursiveFiles(files)
+          })
+        }
+      }) 
+    }
+
+    recursiveFiles([file])
+
     res.status(200).json({ file })
   } catch (e) {
     res.status(400).json({ error: e })
