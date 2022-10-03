@@ -4,6 +4,7 @@ var formidable = require("formidable");
 var db = require("../database/nedb");
 
 const fs = require('fs');
+const { find } = require("../database/nedb");
 const dir = './upload';
 
 /** create directory upload if not exists */
@@ -24,19 +25,6 @@ const deleteFileDirectoryUpload = filename => {
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
 });
-
-/** GET test db */
-router.get('/api', (req, res) => {
-  db.find({ group: '' })
-    .sort({ createdAt: 1 })
-    .exec((err, files) => {
-      if (err) {
-        res.status(400).json({ error: err });
-      } else {
-        res.status(200).json(files);
-      }
-    });
-})
 
 /** POST upload files page */
 router.post("/upload", (req, res, next) => {
@@ -64,6 +52,7 @@ router.post("/upload", (req, res, next) => {
 /** GET list files db */
 router.get("/list/:group", (req, res) => {
   const { group } = req.params
+  console.log(group)
   db.find({ group: group })
     .sort({ createdAt: 1 })
     .exec((err, files) => {
@@ -96,16 +85,75 @@ router.put('/update/:id', (req, res) => {
   })
 })
 
+const findGroup = file => {
+  return new Promise((resolve, reject) => {
+    let group = [file.group, file.name].join('.')
+    db.find({ group: group })
+    .exec((err, files) => {
+      if (err) reject([])
+      resolve(files)
+    })
+  })
+
+}
+
+
+const deleteFolder = (file) => {
+    
+    function teste(values, acum = []) {
+
+      if (values.length <= 0) return acum;
+
+      values.forEach(item => {
+
+        // acum.push(item)
+        console.log(item)
+
+        db.remove({ _id: item._id }, {}, err => {
+          if (err) throw new Error(err) 
+          deleteFileDirectoryUpload(item.path)
+        })
+
+        if (item.type == 'folder') {
+          let group = [item.group, item.name].join('.')
+          db.find({ group: group })
+          .exec((err, files) => {
+            if (err) return
+            teste(files, acum)
+          })
+        }
+
+      }) 
+      
+      // return acum
+      
+    }
+
+
+    res = teste([file], [])   
+
+    // console.log('RES......: ' + res)
+    
+}
+
+
 /** DELETE remove file database and file disk server */
 router.delete('/delete/:id', (req, res) => {
   try {
     const { id } = req.params
-    const { path } = req.body
-    db.remove({ _id: id }, {}, err => {
-      if (err) throw new Error(err) 
-    })
-    deleteFileDirectoryUpload(path)
-    res.status(200).json({ id, path })
+    const file = req.body
+
+    if(file.type == 'folder') {
+      deleteFolder(file)
+      // .then(res => console.log(res))
+      // .catch(e => console.log(e))
+    }
+
+    // db.remove({ _id: id }, {}, err => {
+    //   if (err) throw new Error(err) 
+    // })
+    // deleteFileDirectoryUpload(path)
+    res.status(200).json({ file })
   } catch (e) {
     res.status(400).json({ error: e })
   }

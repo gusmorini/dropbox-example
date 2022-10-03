@@ -49,13 +49,13 @@ class DropBoxController {
    * remove file database from id
    */
    removeTask(file) {
-    const { _id, path } = file
+    const { _id, path, type, group } = file
     fetch(`/delete/${_id}`, { 
       method: "DELETE", 
       headers: new Headers({
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify({ path })
+      body: JSON.stringify(file)
      })
       // .then(res => res.json().then(data => console.log(data)))
       .catch(e => console.error(e))
@@ -175,6 +175,10 @@ class DropBoxController {
     return { name, index }
   }
 
+  getGroup(){
+    return this.breadCrumb.join('.')
+  }
+
   /** salva os dados do arquivo no database */
   saveTask(file) {
     fetch("/save", {
@@ -184,7 +188,7 @@ class DropBoxController {
       },
       body: JSON.stringify({
         ...file,
-        group: this.getCurrentPage().name
+        group: this.getGroup()
       }),
     })
       .then((resp) => {
@@ -201,7 +205,7 @@ class DropBoxController {
   }
 
   /** busca os dados saldos no database */
-  listTask(group = this.getCurrentPage().name) {
+  listTask(group = this.getGroup()) {
     this.clearList()
     fetch(`/list/${group}`)
       .then((resp) => {
@@ -380,7 +384,10 @@ class DropBoxController {
     this.navEl.innerHTML = nav.innerHTML
     // adiciona eventos de clique se necessário
     this.navEl.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', e => this.navigatePages(a.dataset.id))
+      a.addEventListener('click', e => {
+        e.preventDefault()
+        this.navigatePages(a.dataset.id)
+      })
     })
   } 
   
@@ -397,6 +404,7 @@ class DropBoxController {
     }
     this.renderNav()
     this.listTask();
+    console.log(this.breadCrumb)
   }
 
   // inicia eventos no li informado
