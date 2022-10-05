@@ -7,6 +7,7 @@ const {
   deleteData,
   updateData,
 } = require("../database/realtime");
+
 const formidable = require("formidable");
 const fs = require("fs");
 const __dir = "./upload";
@@ -43,24 +44,30 @@ router.patch("/update", (req, res) => {
   res.json(req.body);
 });
 
+/** delete file or folder */
 router.delete("/delete", (req, res) => {
-  const file = req.body;
-  let index = file.index + "/" + file.id;
-  if (file.type == "folder") {
-    console.log("TRATATIVA FOLDER");
-  } else {
-    console.log("TRATATIVA ARQUIVO");
-  }
+  const { file, group } = req.body;
+  let index = group + "/" + file.id;
   deleteData(index).then((data) => {
-    deleteFileDirectoryUpload(file.path);
+    if (file.type == "folder") {
+      const __path = __dir + "/" + index;
+      deleteDirectory(__path);
+    } else {
+      const __path = __dir + "/" + group + "/" + file.path;
+      deleteFile(__path);
+    }
     res.json(index);
   });
 });
 
+/** upload file */
 router.post("/upload", (req, res) => {
-  verifyDirectoryUpload();
+  const { group } = req.query;
+  const __path = __dir + "/" + group;
+  console.log(__path);
+  verifyDirectory(__path);
   const form = formidable({
-    uploadDir: __dir,
+    uploadDir: __path,
     keepExtensions: true,
   });
   form.parse(req, (err, fields, files) => {
@@ -80,17 +87,24 @@ router.post("/upload", (req, res) => {
 });
 
 /** create directory upload if not exists */
-const verifyDirectoryUpload = () => {
-  if (!fs.existsSync(__dir)) {
-    fs.mkdirSync(__dir);
+const verifyDirectory = (__path) => {
+  if (!fs.existsSync(__path)) {
+    fs.mkdirSync(__path, { recursive: true });
   }
 };
 
 /** delete item directory upload */
-const deleteFileDirectoryUpload = (filename) => {
-  const __path = __dir + "/" + filename;
+const deleteFile = (__path) => {
+  console.log(__path);
   if (fs.existsSync(__path)) {
     fs.unlinkSync(__path);
+  }
+};
+
+/** delete directory */
+const deleteDirectory = (__path) => {
+  if (fs.existsSync(__path)) {
+    fs.rmSync(__path, { recursive: true });
   }
 };
 

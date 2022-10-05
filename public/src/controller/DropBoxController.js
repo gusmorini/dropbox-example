@@ -57,8 +57,8 @@ class DropBoxController {
         "Content-Type": "application/json",
       }),
       body: JSON.stringify({
-        ...file,
-        index: this.getGroup(),
+        file,
+        group: this.getGroup(),
       }),
     })
       // .then(res => res.json().then(data => console.log(data)))
@@ -231,7 +231,8 @@ class DropBoxController {
           // instância do "ajax" XMLHttpRequest
           const ajax = new XMLHttpRequest();
           // abre a requisição
-          ajax.open("POST", "/api/upload");
+          const group = this.getGroup();
+          ajax.open("POST", `/api/upload?group=${group}`);
 
           ajax.onload = (event) => {
             try {
