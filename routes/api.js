@@ -36,7 +36,7 @@ router.post("/save", (req, res) => {
   const data = req.body;
   const prefix = data.type == "folder" ? "dir_" : "file_";
   const id = prefix + Date.now();
-  const index = data.index + "/" + id;
+  const index = joinArray([data.index, id]);
   delete data.index;
   setData(index, { id, ...data }).then((resp) => res.status(200).json(resp));
 });
@@ -52,23 +52,24 @@ router.get("/list", (req, res) => {
 /** update file */
 router.patch("/update", (req, res) => {
   const { group, name, id } = req.body;
-  const index = [group, id].join("/");
-  updateData(index, { name }).then((data) => {
-    res.status(200).json({ name, id });
-  });
-  res.json(req.body);
+  const index = joinArray([group, id]);
+  updateData(index, { name })
+    .then((data) => {
+      res.status(200).json({ name, id });
+    })
+    .catch((e) => res.status(400).json({ error: e }));
 });
 
 /** delete file or folder */
 router.delete("/delete", (req, res) => {
   const { file, group } = req.body;
-  let index = group + "/" + file.id;
+  let index = joinArray([group, file.id]);
   deleteData(index).then((data) => {
     if (file.type == "folder") {
-      const __path = __dir + "/" + index;
+      const __path = completePath([index]);
       deleteDirectory(__path);
     } else {
-      const __path = __dir + "/" + group + "/" + file.path;
+      const __path = completePath([group, file.path]);
       deleteFile(__path);
     }
     res.json(index);
@@ -78,7 +79,7 @@ router.delete("/delete", (req, res) => {
 /** upload file */
 router.post("/upload", (req, res) => {
   const { group } = req.query;
-  const __path = __dir + "/" + group;
+  const __path = completePath([group]);
   console.log(__path);
   verifyDirectory(__path);
   const form = formidable({
