@@ -17,8 +17,7 @@ router.get("/file", (req, res) => {
   // path recebido na query string
   const { path, group } = req.query;
   // montando o path completo
-  const __path = [__dir, group, path].join("/");
-  console.log(__path);
+  const __path = completePath([group, path]);
   // verifica se o diretorio existe
   if (fs.existsSync(__path)) {
     // verifica se o arquivo é válido
@@ -80,7 +79,6 @@ router.delete("/delete", (req, res) => {
 router.post("/upload", (req, res) => {
   const { group } = req.query;
   const __path = completePath([group]);
-  console.log(__path);
   verifyDirectory(__path);
   const form = formidable({
     uploadDir: __path,
@@ -121,7 +119,6 @@ const verifyDirectory = (__path) => {
 
 /** delete item directory upload */
 const deleteFile = (__path) => {
-  console.log(__path);
   if (fs.existsSync(__path)) {
     fs.unlinkSync(__path);
   }
