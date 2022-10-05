@@ -23,14 +23,12 @@ router.post("/save", (req, res) => {
   const prefix = data.type == "folder" ? "dir_" : "file_";
   const id = prefix + Date.now();
   const index = data.index + "/" + id;
-  console.log(index);
   delete data.index;
   setData(index, { id, ...data }).then((resp) => res.status(200).json(resp));
 });
 
 router.get("/list", (req, res) => {
   const { index } = req.query;
-  console.log(index);
   getData(index).then((resp) => {
     res.status(200).json(resp);
   });
@@ -54,14 +52,12 @@ router.delete("/delete", (req, res) => {
     console.log("TRATATIVA ARQUIVO");
   }
   deleteData(index).then((data) => {
-    console.log(data);
     deleteFileDirectoryUpload(file.path);
     res.json(index);
   });
 });
 
 router.post("/upload", (req, res) => {
-  console.log(req.body);
   verifyDirectoryUpload();
   const form = formidable({
     uploadDir: __dir,
