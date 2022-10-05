@@ -12,13 +12,26 @@ const formidable = require("formidable");
 const fs = require("fs");
 const __dir = "./upload";
 
-router.get("/", async function (req, res, next) {
-  const index = `home/${req.query.id ? req.query.id : ""}/`;
-  getData(index).then((resp) => {
-    res.status(200).json(resp);
-  });
+/** open file */
+router.get("/file", (req, res) => {
+  // path recebido na query string
+  const { path, group } = req.query;
+  // montando o path completo
+  const __path = [__dir, group, path].join("/");
+  console.log(__path);
+  // verifica se o diretorio existe
+  if (fs.existsSync(__path)) {
+    // verifica se o arquivo é válido
+    fs.readFile(__path, (err, data) => {
+      if (err) res.status(400).json({ error: err });
+      res.status(200).end(data);
+    });
+  } else {
+    res.status(404).json({ error: "file not found" });
+  }
 });
 
+/** save file in database */
 router.post("/save", (req, res) => {
   const data = req.body;
   const prefix = data.type == "folder" ? "dir_" : "file_";
@@ -28,6 +41,7 @@ router.post("/save", (req, res) => {
   setData(index, { id, ...data }).then((resp) => res.status(200).json(resp));
 });
 
+/** get files database */
 router.get("/list", (req, res) => {
   const { index } = req.query;
   getData(index).then((resp) => {
@@ -35,6 +49,7 @@ router.get("/list", (req, res) => {
   });
 });
 
+/** update file */
 router.patch("/update", (req, res) => {
   const { group, name, id } = req.body;
   const index = [group, id].join("/");
@@ -85,6 +100,16 @@ router.post("/upload", (req, res) => {
     res.status(200).json(file);
   });
 });
+
+/** return array join (/) */
+const joinArray = (array) => {
+  return array.join("/");
+};
+
+/** return complete path */
+const completePath = (dir = []) => {
+  return joinArray([__dir].concat(dir));
+};
 
 /** create directory upload if not exists */
 const verifyDirectory = (__path) => {

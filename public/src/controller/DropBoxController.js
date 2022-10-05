@@ -412,7 +412,8 @@ class DropBoxController {
           this.openFolder({ id: file.id, name: file.name });
           break;
         default:
-          window.open("/file?path=" + file.path);
+          const dir = `/api/file?group=${this.getGroup()}&path=${file.path}`;
+          window.open(dir);
       }
     });
 
