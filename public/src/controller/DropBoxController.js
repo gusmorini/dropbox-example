@@ -1,6 +1,6 @@
 class DropBoxController {
   constructor() {
-    this.breadCrumb = ["home"];
+    this.breadCrumb = [{ id: "base", name: "Home" }];
 
     this.btnSendFileEl = document.querySelector("#btn-send-file");
     this.inputFilesEl = document.querySelector("#files");
@@ -32,12 +32,16 @@ class DropBoxController {
    * update filename database
    */
   updateTask(file) {
-    fetch(`/update/${file._id}`, {
-      method: "PUT",
+    fetch(`/api/update/`, {
+      method: "PATCH",
       headers: new Headers({
         "Content-Type": "application/json",
       }),
-      body: JSON.stringify(file),
+      body: JSON.stringify({
+        name: file.name,
+        id: file.id,
+        group: this.getGroup(),
+      }),
     })
       // .then(res => res.json().then(data => console.log(data)))
       .catch((e) => console.error(e));
@@ -47,13 +51,15 @@ class DropBoxController {
    * remove file database from id
    */
   removeTask(file) {
-    const { _id, path, type, group } = file;
-    fetch(`/delete/${_id}`, {
+    fetch(`api/delete/`, {
       method: "DELETE",
       headers: new Headers({
         "Content-Type": "application/json",
       }),
-      body: JSON.stringify(file),
+      body: JSON.stringify({
+        ...file,
+        index: this.getGroup(),
+      }),
     })
       // .then(res => res.json().then(data => console.log(data)))
       .catch((e) => console.error(e));
@@ -160,28 +166,25 @@ class DropBoxController {
     this.snackModalEl.style.display = show ? "block" : "none";
   }
 
-  // retorna a pagina atual do breadCrumb
-  getCurrentPage() {
-    let index = this.breadCrumb.length - 1;
-    let name = this.breadCrumb[index];
-
-    return { name, index };
-  }
-
+  /** retorna o grupo que o arquivo pertence */
   getGroup() {
-    return this.breadCrumb.join(".");
+    const group = [];
+    this.breadCrumb.forEach((item) => {
+      group.push(item.id);
+    });
+    return group.join("/");
   }
 
   /** salva os dados do arquivo no database */
   saveTask(file) {
-    fetch("/save", {
+    fetch("/api/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         ...file,
-        group: this.getGroup(),
+        index: this.getGroup(),
       }),
     })
       .then((resp) => {
@@ -200,7 +203,7 @@ class DropBoxController {
   /** busca os dados saldos no database */
   listTask(group = this.getGroup()) {
     this.clearList();
-    fetch(`/list/${group}`)
+    fetch(`/api/list?index=${group}`)
       .then((resp) => {
         resp.json().then((data) => this.addItemsList(data));
       })
@@ -228,7 +231,7 @@ class DropBoxController {
           // instância do "ajax" XMLHttpRequest
           const ajax = new XMLHttpRequest();
           // abre a requisição
-          ajax.open("POST", "/upload");
+          ajax.open("POST", "/api/upload");
 
           ajax.onload = (event) => {
             try {
@@ -341,7 +344,7 @@ class DropBoxController {
   /** formata o el li para exibição do arquivo */
   getFileView(file) {
     let li = document.createElement("li");
-    li.dataset.key = file._id;
+    li.dataset.key = file.id;
     li.dataset.file = JSON.stringify(file);
     li.innerHTML = `
       ${this.getFileIconView(file)} 
@@ -359,11 +362,11 @@ class DropBoxController {
     // percorre elementos
     this.breadCrumb.forEach((value, key) => {
       if (key + 1 == count) {
-        nav.innerHTML += `<span>${value}</span>`;
+        nav.innerHTML += `<span>${value.name}</span>`;
       } else {
         nav.innerHTML += `<span class="breadcrumb-segment__wrapper">
           <span class="ue-effect-container uee-BreadCrumbSegment-link-0">
-            <a href="#" data-id="${key}" class="breadcrumb-segment">${value}</a>
+            <a href="#" data-id="${key}" class="breadcrumb-segment">${value.name}</a>
           </span>
           <svg width="24" height="24" viewBox="0 0 24 24" class="mc-icon-template-stateless" style="top: 4px; position: relative">
             <title>arrow-right</title>
@@ -390,13 +393,12 @@ class DropBoxController {
   }
 
   // gerencia o breadcrumb e lista os arquivos
-  openFolder(folder = null) {
+  openFolder(folder) {
     if (folder) {
       this.breadCrumb.push(folder);
     }
     this.renderNav();
     this.listTask();
-    console.log(this.breadCrumb);
   }
 
   // inicia eventos no li informado
@@ -406,7 +408,7 @@ class DropBoxController {
       let file = JSON.parse(li.dataset.file);
       switch (file.type) {
         case "folder":
-          this.openFolder(file.name);
+          this.openFolder({ id: file.id, name: file.name });
           break;
         default:
           window.open("/file?path=" + file.path);
@@ -487,8 +489,12 @@ class DropBoxController {
     this.ulFilesEl.append(this.getFileView(item));
   }
 
-  /** recebe um array e insere os itens na lista UL */
+  /** recebe um objeto e faz tratativas e insere os itens na lista UL */
   addItemsList(items) {
-    items.forEach((item) => this.addItemList(item));
+    Object.values(items).forEach((item) => {
+      if (typeof item === "object") {
+        this.addItemList(item);
+      }
+    });
   }
 }
