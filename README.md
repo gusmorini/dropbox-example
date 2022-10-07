@@ -1,8 +1,9 @@
 # dropbox-example
 
-- acesse a pasta do projeto
+- dentro da pasta do projeto
 - instale as dependências <strong>npm install</strong>
 - rode com o comando <strong>npm start</strong>
+- acesse na url: http://localhost:3000/
 
 ### Tela inicial
 
