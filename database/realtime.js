@@ -1,17 +1,6 @@
-const {
-  getDatabase,
-  ref,
-  set,
-  onValue,
-  get,
-  child,
-  update,
-  push,
-} = require("firebase/database");
+const { ref, set, get, child, update } = require("firebase/database");
 
-const firebase = require("./firebase");
-
-const db = getDatabase(firebase);
+const { db } = require("./firebase");
 
 const dbRef = ref(db);
 
