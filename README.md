@@ -4,8 +4,6 @@
 - instale as dependências <strong>npm install</strong>
 - rode com o comando <strong>npm start</strong>
 
-<br>
-
 ### Tela inicial
 
 projeto faz todas as operações iniciais do gerenciador de arquivos em nuvem, inserir, visualizar, editar, excluir
